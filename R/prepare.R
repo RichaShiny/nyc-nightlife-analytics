@@ -1,0 +1,41 @@
+# Run from repository root: Rscript R/prepare.R /path/to/original/data
+suppressPackageStartupMessages({library(sf);library(dplyr);library(jsonlite)})
+args <- commandArgs(TRUE); stopifnot(length(args)==1)
+source_dir <- args[1]; out <- 'data/processed'; dir.create(out,recursive=TRUE,showWarnings=FALSE)
+files <- file.path(source_dir,c('raw/nypd_complaints_raw.rds','raw/yelp_nightlife.rds','raw/taxi_zones.rds'))
+stopifnot(all(file.exists(files)))
+audit <- list(source_md5=as.list(setNames(unname(tools::md5sum(files)),basename(files))),built_utc=format(Sys.time(),tz='UTC'))
+z <- readRDS(files[3]) |> st_transform(2263) |> st_make_valid() |> filter(borough!='EWR') |> select(LocationID,zone,borough)
+z <- z |> group_by(LocationID) |> summarise(zone=first(zone),borough=first(borough),.groups='drop')
+stopifnot(!anyDuplicated(z$LocationID))
+v <- readRDS(files[2]) |> distinct(id,.keep_all=TRUE) |> filter(is.finite(lat),is.finite(lon))
+audit$venues_snapshot <- nrow(v)
+assign_zone <- function(points) {
+ hits <- st_within(points,z)
+ # Boundary and outside points remain unassigned; never force nearest-zone matches.
+ vapply(hits,function(h) if(length(h)==1) z$LocationID[h] else NA_integer_,integer(1))
+}
+v$LocationID <- assign_zone(st_as_sf(v,coords=c('lon','lat'),crs=4326) |> st_transform(2263))
+audit$venues_unmatched <- sum(is.na(v$LocationID))
+z <- z |> left_join(count(v,LocationID,name='venues'),by='LocationID') |> mutate(venues=coalesce(venues,0L),cohort=case_when(venues>=15~'High',venues>=5~'Medium',TRUE~'Low'))
+x <- readRDS(files[1]); audit$raw_rows <- nrow(x)
+audit$duplicate_ids <- sum(duplicated(x$CMPLNT_NUM)); x <- x |> distinct(CMPLNT_NUM,.keep_all=TRUE)
+d <- as.Date(x$CMPLNT_FR_DT,format='%m/%d/%Y')
+h <- if(inherits(x$CMPLNT_FR_TM,'difftime')) floor(as.numeric(x$CMPLNT_FR_TM,units='secs')/3600) else as.integer(substr(as.character(x$CMPLNT_FR_TM),1,2))
+x <- transmute(x,date=d,hour=h,lat=as.numeric(Latitude),lon=as.numeric(Longitude),offense=OFNS_DESC)
+ok <- !is.na(x$date)&x$date>=as.Date('2019-01-01')&x$date<=as.Date('2023-12-31')&!is.na(x$hour)&x$hour>=0&x$hour<24&is.finite(x$lat)&is.finite(x$lon)&x$lat>=40&x$lat<=42&x$lon>=-75&x$lon<=-72
+ok[is.na(ok)] <- FALSE; audit$invalid_or_outside_scope <- sum(!ok); x<-x[ok,]
+coords <- distinct(x,lon,lat)
+message('Assigning ',nrow(coords),' unique coordinates to taxi zones')
+coords$LocationID <- assign_zone(st_as_sf(coords,coords=c('lon','lat'),crs=4326) |> st_transform(2263))
+x <- left_join(x,coords,by=c('lon','lat')); audit$unmatched_complaints <- sum(is.na(x$LocationID))
+x <- x |> filter(!is.na(LocationID)) |> mutate(year=as.integer(format(date,'%Y')),month=format(date,'%Y-%m'),type=case_when(offense %in% c('FELONY ASSAULT','ROBBERY','RAPE','MURDER & NON-NEGL. MANSLAUGHTER')~'Violent',offense %in% c('GRAND LARCENY','PETIT LARCENY','BURGLARY','GRAND LARCENY OF MOTOR VEHICLE')~'Property',grepl('DRUG',offense)~'Drug',offense %in% c('DISORDERLY CONDUCT','HARRASSMENT 2','CRIMINAL MISCHIEF & RELATED OF')~'Disorder',TRUE~'Other'))
+audit$matched_rows <- nrow(x)
+write.csv(count(x,year,LocationID,hour,type,name='n'),file.path(out,'cube.csv'),row.names=FALSE)
+m <- x |> left_join(st_drop_geometry(z)[,c('LocationID','cohort')],by='LocationID') |> mutate(period=case_when(hour>=20~'Early',hour<4~'Midnight',hour<8~'Closing',TRUE~'Day')) |> count(month,cohort,period,name='n')
+write.csv(m,file.path(out,'monthly.csv'),row.names=FALSE)
+write.csv(st_drop_geometry(z),file.path(out,'zones.csv'),row.names=FALSE)
+st_write(st_transform(st_simplify(z,dTolerance=100,preserveTopology=TRUE),4326),file.path(out,'zones.geojson'),delete_dsn=TRUE,quiet=TRUE)
+audit$cohorts <- as.list(table(z$cohort));audit$note <- 'Observed venue counts in an incomplete 244-record snapshot; zero is not verified absence. No visitor exposure denominator.'
+write_json(audit,file.path(out,'audit.json'),pretty=TRUE,auto_unbox=TRUE)
+message('Complete: ',nrow(x),' matched complaints')

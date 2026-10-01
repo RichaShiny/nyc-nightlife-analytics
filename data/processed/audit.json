@@ -1,0 +1,21 @@
+{
+  "source_md5": {
+    "nypd_complaints_raw.rds": "956b05397f35513d16c5e5ad52734bc4",
+    "yelp_nightlife.rds": "fefb3b242f4f73548e07556666487230",
+    "taxi_zones.rds": "3ab9c9b69458bb2796f0a37f0987f7ca"
+  },
+  "built_utc": "2026-09-30 15:11:15",
+  "venues_snapshot": 244,
+  "venues_unmatched": 18,
+  "raw_rows": 2404692,
+  "duplicate_ids": 2047,
+  "invalid_or_outside_scope": 3,
+  "unmatched_complaints": 193,
+  "matched_rows": 2402449,
+  "cohorts": {
+    "High": 1,
+    "Low": 245,
+    "Medium": 13
+  },
+  "note": "Observed venue counts in an incomplete 244-record snapshot; zero is not verified absence. No visitor exposure denominator."
+}
