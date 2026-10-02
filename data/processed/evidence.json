@@ -1,0 +1,146 @@
+{
+  "findings": [
+    {
+      "cohort": "All",
+      "zones": 259,
+      "early": 443130,
+      "midnight": 292989,
+      "closing": 177327,
+      "change": -33.88193081037167,
+      "interval": [
+        -34.807932668530995,
+        -32.98104923001086
+      ],
+      "closing_change": -39.47656737966272,
+      "closing_interval": [
+        -40.46867057507879,
+        -38.48189162508646
+      ]
+    },
+    {
+      "cohort": "Low",
+      "zones": 245,
+      "early": 416116,
+      "midnight": 274224,
+      "closing": 166604,
+      "change": -34.099145430601084,
+      "interval": [
+        -35.039179924884124,
+        -33.19431676525372
+      ],
+      "closing_change": -39.24528852325106,
+      "closing_interval": [
+        -40.25088238099781,
+        -38.18645854524606
+      ]
+    },
+    {
+      "cohort": "Medium",
+      "zones": 13,
+      "early": 25880,
+      "midnight": 17837,
+      "closing": 10318,
+      "change": -31.07805255023184,
+      "interval": [
+        -32.764227642276424,
+        -29.326941663122895
+      ],
+      "closing_change": -42.15394965521108,
+      "closing_interval": [
+        -43.81360173497192,
+        -40.326682868931215
+      ]
+    },
+    {
+      "cohort": "High",
+      "zones": 1,
+      "early": 1134,
+      "midnight": 928,
+      "closing": 405,
+      "change": -18.165784832451504,
+      "interval": [
+        -29.52218430034129,
+        -3.8461538461538436
+      ],
+      "closing_change": -56.35775862068966,
+      "closing_interval": [
+        -62.978283350568766,
+        -48.423707440100884
+      ]
+    }
+  ],
+  "sensitivity": [
+    {
+      "threshold": 10,
+      "zones": 2,
+      "early": 3148,
+      "midnight": 2426,
+      "change": -22.935196950444727
+    },
+    {
+      "threshold": 15,
+      "zones": 1,
+      "early": 1134,
+      "midnight": 928,
+      "change": -18.165784832451504
+    },
+    {
+      "threshold": 20,
+      "zones": 0,
+      "early": 0,
+      "midnight": 0,
+      "change": null
+    }
+  ],
+  "annual": [
+    {
+      "year": 2019,
+      "early": 83625,
+      "midnight": 57026,
+      "change": -31.807473841554557,
+      "days": 365
+    },
+    {
+      "year": 2020,
+      "early": 79305,
+      "midnight": 51694,
+      "change": -34.81621587541769,
+      "days": 366
+    },
+    {
+      "year": 2021,
+      "early": 82010,
+      "midnight": 54911,
+      "change": -33.043531276673576,
+      "days": 365
+    },
+    {
+      "year": 2022,
+      "early": 94928,
+      "midnight": 63541,
+      "change": -33.064006404854204,
+      "days": 365
+    },
+    {
+      "year": 2023,
+      "early": 103262,
+      "midnight": 65817,
+      "change": -36.262129340899854,
+      "days": 365
+    }
+  ],
+  "gradient": {
+    "difference_pp": 15.93336059814958,
+    "interval": [
+      4.55971946935049,
+      30.33987034609216
+    ]
+  },
+  "coverage": {
+    "zones": 259,
+    "observed_zones": 84,
+    "matched_venues": 226,
+    "retained_pct": 99.9067240212052,
+    "snapshot": 244
+  }
+}

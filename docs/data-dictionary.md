@@ -7,7 +7,8 @@
 | zones.csv | unique TLC zone | LocationID; zone; borough (polygon source); venues (observed matched unique venue IDs); cohort |
 | zones.geojson | unique TLC zone | Same zone attributes, simplified WGS84 geometry; display only |
 | audit.json | build | Input fingerprints, timestamp, exclusions, retained totals, group sizes |
-| findings.json | cohort | early/midnight totals; percentage change; bootstrap interval; closing change; zone count |
+| findings.json | full city and cohort | early/midnight/closing totals; percentage changes and bootstrap intervals; zone count |
+| evidence.json | reference evidence pack | findings; annual window totals; venue coverage; High-minus-Low percentage-point difference with paired-month interval; High-threshold sensitivity at 10/15/20 venues |
 
 Sparse cube rows omit zero counts. Analyses treat absent combinations as zero; zone denominators use the full zone registry. Missing spatial assignments are excluded, never assigned a zero-valued zone. A zero venue count is absence in the snapshot only.
 
