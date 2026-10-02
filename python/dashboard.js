@@ -56,10 +56,21 @@ function render(){
  $('windows').innerHTML=svg('Equal four-hour complaint windows',yGrid(wm,{left:50,right:480,top:25,bottom:base})+t.p.slice(0,3).map((n,i)=>{const v=n/den,x=75+i*145,y=base-v/wm*170;return `<rect ${tip(windows[i]+': '+fmt(v))} x="${x}" y="${y}" width="83" height="${base-y}" fill="${[C.amber,C.teal,C.lavender][i]}"/>`+txt(x+41,y-10,short(v),'label','middle')+txt(x+41,245,['8 PM–12 AM','12–4 AM','4–8 AM'][i],'','middle');}).join(''),ww,275);
  $('windowNote').innerHTML=`Midnight change: <b>${pp(change)}</b>. Next-window change: <b>${pp(closing)}</b>. ${s.metric==='rate'?'Each bar is a four-hour window per zone/day.':'Each bar covers the same number of clock hours.'}`;
  table('windowsTable',['Window','Complaints',s.metric==='rate'?'Per zone/day':'Change from prior'],windows.map((w,i)=>[w,fmt(t.p[i]),s.metric==='rate'?fmt(t.p[i]/den):i?pp(pc(t.p[i-1],t.p[i])):'Baseline']));
- renderAnnual(s,zs);renderGeography(s,zs,t);renderOffenses(s,zs);
+ renderAnnual(s,zs);renderGeography(s,zs,t);renderCohorts(s);renderOffenses(s,zs);
  $('conclusionLead').textContent=`In your selection, the midnight comparison is ${pp(change)} and the post-4 AM comparison is ${pp(closing)}. The evidence describes when complaints are recorded across the selected zones; it does not establish why those patterns occur.`;
  $('supportedText').textContent=change===null?'This selection has no early-window baseline. No percentage conclusion is available.':`The selected records contain ${change<0?'fewer':change>0?'more':'the same number of'} complaints after midnight than during the prior four-hour window. Comparisons are based on occurrence-start time.`;
 }
+
+function renderCohorts(s){
+ const rows=filterRows(s,['cohort']),zs=zoneScope(s,['cohort']);
+ const groups=GROUPS.map(g=>{const n=zs.filter(z=>z.cohort===g).length,t=totals(rows.filter(r=>Z[r[1]].cohort===g)),den=s.metric==='rate'?Math.max(1,n)*days(s.year):1;return {name:g,zones:n,early:t.p[0],midnight:t.p[1],a:t.p[0]/den,b:t.p[1]/den,change:pc(t.p[0],t.p[1])};});
+ const max=niceMax(Math.max(0,...groups.flatMap(g=>[g.a,g.b])));let content='';
+ groups.forEach((g,i)=>{const y=28+i*68;content+=txt(0,y+12,g.name+' · '+g.zones+' zones','label')+`<rect ${tip(g.name+' early: '+fmt(g.early)+' complaints; '+fmt(g.a)+' displayed')} x="170" y="${y}" width="${340*g.a/max}" height="19" fill="${C.amber}"/><rect ${tip(g.name+' midnight: '+fmt(g.midnight)+' complaints; '+fmt(g.b)+' displayed')} x="170" y="${y+24}" width="${340*g.b/max}" height="19" fill="${C.teal}"/>`+txt(635,y+28,pp(g.change),'label','end');});
+ content+=txt(170,254,'0')+txt(510,254,short(max),'','middle')+txt(635,254,'Midnight change','tiny','end');
+ $('cohortComparison').innerHTML=svg('Filtered venue group comparison',content,660,280);
+ table('cohortComparisonTable',['Group','Zones','Early count','Midnight count','Early displayed','Midnight displayed','Change'],groups.map(g=>[g.name,g.zones,fmt(g.early),fmt(g.midnight),fmt(g.a),fmt(g.b),pp(g.change)]));
+}
+
 function renderAnnual(s,zs){
  const rs=filterRows(s,['year']),ys=[2019,2020,2021,2022,2023],yr=ys.map(y=>totals(rs.filter(r=>r[0]===y)));
  const series=windows.map((name,i)=>({name,color:[C.amber,C.teal,C.lavender][i],values:yr.map((t,j)=>t.p[i]/(days(ys[j])*Math.max(zs.length,1)))}));

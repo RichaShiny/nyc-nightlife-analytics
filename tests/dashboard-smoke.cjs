@@ -7,7 +7,7 @@ function get(id){return elements[id] ||= {value:['metric','mapMetric'].includes(
 const context={console,Blob,URL,setTimeout,document:{getElementById:get,addEventListener(){},createElement:()=>({click(){}})}};
 vm.createContext(context);vm.runInContext(scripts,context);
 const evaluate=s=>vm.runInContext(s,context), render=()=>evaluate('render()');
-const chartIds=['hour','windows','annual','heatmap','map','boroughChart','scatter','ranking','offenseHours','composition','forest','sensitivity','monthlyChart'];
+const chartIds=['hour','windows','annual','heatmap','map','boroughChart','scatter','ranking','offenseHours','composition','forest','sensitivity','monthlyChart','cohortComparison'];
 for(const id of chartIds){assert(get(id).innerHTML.includes('<svg'),id);assert(!/NaN|Infinity|undefined/.test(get(id).innerHTML),id+' has invalid values');}
 assert.equal(evaluate('currentTotals.night'),913446);assert.equal(evaluate('currentZones.length'),259);
 assert.equal(get('verdictValue').textContent,'-33.9%');
@@ -16,6 +16,7 @@ const initial=get('cards').innerHTML,reference=get('forest').innerHTML,monthly=g
 get('year').value='2020';get('cohort').value='High';get('metric').value='rate';render();
 assert.equal(evaluate('currentZones.length'),1);assert.equal(reference,get('forest').innerHTML);assert.equal(monthly,get('monthlyChart').innerHTML);
 const baseRows=evaluate('filterRows(state(), ["year"]).length');get('year').value='2023';render();assert.equal(baseRows,evaluate('filterRows(state(), ["year"]).length'));
+const cohorts=get('cohortComparison').innerHTML;get('cohort').value='Low';render();assert.equal(cohorts,get('cohortComparison').innerHTML,'Group comparison omits cohort filter');get('cohort').value='High';render();
 const composition=get('composition').innerHTML;get('type').value='Drug';render();assert.equal(composition,get('composition').innerHTML,'Composition intentionally ignores offense filter');
 get('borough').value='Bronx';render();assert.equal(get('verdictValue').textContent,'Not estimable');assert.equal(get('emptyNotice').hidden,false);
 for(const id of chartIds)assert(!/NaN|Infinity|undefined/.test(get(id).innerHTML),id+' invalid on empty group');
@@ -25,4 +26,4 @@ get('mapMetric').value='change';get('mapMetric').onchange();assert(get('mapLegen
 get('mapMetric').value='venues';get('mapMetric').onchange();assert(get('mapLegend').innerHTML.includes('observed venues'));
 get('reset').onclick();assert.equal(initial,get('cards').innerHTML);
 if(process.env.CHART_EXPORT_DIR){fs.mkdirSync(process.env.CHART_EXPORT_DIR,{recursive:true});for(const id of chartIds){let out=get(id).innerHTML.replace('<svg ','<svg xmlns="http://www.w3.org/2000/svg" ').replace('<title>','<style>text{font-family:Arial;font-size:11px;fill:#667577}.label{fill:#253b3c;font-weight:bold}.tiny{font-size:9px}.gridline{stroke:#e5e8e2;stroke-width:1}.baseline{stroke:#a0afaa;stroke-width:1}</style><title>');fs.writeFileSync(process.env.CHART_EXPORT_DIR+'/'+id+'.svg',out);}}
-console.log('Dashboard checks passed: 13 charts, known totals, leap-day denominator, filter scopes, fixed reference panels, empty groups, zone inspection, map modes and reset.');
+console.log('Dashboard checks passed: 14 charts, known totals, leap-day denominator, filter scopes, fixed reference panels, empty groups, zone inspection, map modes and reset.');

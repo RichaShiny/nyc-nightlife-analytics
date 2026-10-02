@@ -1,6 +1,6 @@
 # Reading the redesigned dashboard
 
-The report follows six chapters: the midnight question; geography and venues; offense patterns; evidence strength; joining methodology; and the conclusion. It has 13 numbered figures plus data-quality summaries and a join diagram.
+The report follows six chapters: the midnight question; geography and venues; offense patterns; evidence strength; joining methodology; and the conclusion. It has 14 numbered figures plus data-quality summaries and a join diagram.
 
 | Figure | Question / view | Filter scope |
 |---|---|---|
@@ -8,15 +8,16 @@ The report follows six chapters: the midnight question; geography and venues; of
 | 02 | Equal four-hour windows | All active filters |
 | 03 | Annual early/midnight/closing trends | All years; other filters apply; per zone/day |
 | 04 | Overnight hour × year heatmap | All years; other filters apply; per zone/day |
-| 05 | Taxi-zone choropleth with inspection | All active filters; map metric can be volume, midnight change, or fixed venue count |
-| 06 | Borough changes around midnight | All boroughs; other filters apply |
-| 07 | Zone venue counts versus complaints/day | Active filters; each point is a zone |
-| 08 | Top eight zones by overnight volume | Active filters; raw overnight counts |
-| 09 | Stacked offense volume by hour | All offense types; other filters apply; volume display applies |
-| 10 | Offense composition by window | All offense types; other filters apply; always shares |
-| 11 | Group changes with bootstrap intervals | Fixed full-snapshot reference |
-| 12 | High-venue threshold sensitivity | Fixed full-snapshot reference |
-| 13 | 60-month early/midnight/closing trends | Fixed full-snapshot reference; counts/calendar day |
+| 05 | Filtered venue-group window comparison | All venue groups; other filters apply; own group denominators |
+| 06 | Taxi-zone choropleth with inspection | All active filters; map metric can be volume, midnight change, or fixed venue count |
+| 07 | Borough changes around midnight | All boroughs; other filters apply |
+| 08 | Zone venue counts versus complaints/day | Active filters; each point is a zone |
+| 09 | Top eight zones by overnight volume | Active filters; raw overnight counts |
+| 10 | Stacked offense volume by hour | All offense types; other filters apply; volume display applies |
+| 11 | Offense composition by window | All offense types; other filters apply; always shares |
+| 12 | Group changes with bootstrap intervals | Fixed full-snapshot reference |
+| 13 | High-venue threshold sensitivity | Fixed full-snapshot reference |
+| 14 | 60-month early/midnight/closing trends | Fixed full-snapshot reference; counts/calendar day |
 
 Scopes are labeled on the figures so a comparison cannot silently lose a group or year. Reference figures stay fixed intentionally. The bottom five-question summary is also a full-snapshot reference; the larger conclusion paragraph above it responds to filters.
 
