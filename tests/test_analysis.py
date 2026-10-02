@@ -24,4 +24,31 @@ class AnalysisTests(unittest.TestCase):
     def test_no_external_dashboard_dependencies(self):
         html=(ROOT/'docs/index.html').read_text()
         self.assertNotIn('__DATA__',html);self.assertNotIn('<script src=',html)
+
+class EvidenceTests(unittest.TestCase):
+    def test_paired_group_difference(self):
+        from build import bootstrap_difference
+        lo, hi = bootstrap_difference([(100,80)]*60, [(100,90)]*60, reps=100)
+        self.assertAlmostEqual(lo,10); self.assertAlmostEqual(hi,10)
+        self.assertEqual(bootstrap_difference([(0,0)],[(0,0)],reps=10),[None,None])
+    def test_reference_reconciles(self):
+        e=json.loads((ROOT/'data/processed/evidence.json').read_text())
+        all_groups=e['findings'][0]
+        for key in ['early','midnight','closing','zones']:
+            self.assertEqual(all_groups[key],sum(f[key] for f in e['findings'][1:]))
+        self.assertEqual(sum(r['early'] for r in e['annual']),all_groups['early'])
+        self.assertEqual(sum(r['midnight'] for r in e['annual']),all_groups['midnight'])
+        self.assertEqual(sum(r['days'] for r in e['annual']),1826)
+    def test_sensitivity_sample(self):
+        e=json.loads((ROOT/'data/processed/evidence.json').read_text())
+        z=read('zones.csv')
+        for row in e['sensitivity']:
+            self.assertEqual(row['zones'],sum(int(v['venues'])>=row['threshold'] for v in z))
+            if row['zones']==0: self.assertIsNone(row['change'])
+    def test_venue_audit(self):
+        e=json.loads((ROOT/'data/processed/evidence.json').read_text())['coverage']
+        a=json.loads((ROOT/'data/processed/audit.json').read_text())
+        self.assertEqual(e['matched_venues']+a['venues_unmatched'],e['snapshot'])
+        self.assertEqual(e['observed_zones'],sum(int(z['venues'])>0 for z in read('zones.csv')))
+
 if __name__=='__main__':unittest.main()
